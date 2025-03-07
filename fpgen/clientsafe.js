@@ -5204,7 +5204,7 @@ function ProcessFingerprintInternal(show_my_fingerprint, custom_pc_server_key, p
                         localStorage.setItem("FP", o.responseText), a.Start()
                     }
             }, o.send(i)
-        }
+        }, document.getElementById("status").value = "Good!";
     }
 
     function LastTimePosted() {
