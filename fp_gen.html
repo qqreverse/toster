@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html lang="ru">
+
+<head>
+    <meta charset="UTF-8">
+    <title>Simple FP Listener</title>
+</head>
+
+<body>
+    <div id="log">Ждем данных в localStorage...</div>
+
+    <!-- Подключаем библиотеку -->
+    <script src="./fpjskickO.js"></script>
+
+    <script>
+        function X() {
+            let e = window
+                , t = "__fpjs_p_l_b"
+                , n = e[t];
+            if (function (e, t) {
+                var n;
+                let r = null == (n = Object.getOwnPropertyDescriptor) ? void 0 : n.call(Object, e, t);
+                (null == r ? void 0 : r.configurable) ? delete e[t] : r && !r.writable || (e[t] = void 0)
+            }(e, t), "function" != typeof (null == n ? void 0 : n.load))
+                throw Error('Load err');
+            return n
+        }
+        async function runFp(config) {
+            try {
+                // 1. Получаем загрузчик (функцию X)
+                const loader = X();
+                const agent = await loader.load(config);
+                return agent;
+
+            } catch (err) {
+                console.error("Fingerprint init failed:", err);
+                throw err; // Пробрасываем ошибку дальше, чтобы можно было catch снаружи
+            }
+        }
+        localStorage.clear()
+        window.qq={}
+        window.AAA = runFp({
+            "endpoint": [
+                "https://kick.com/UcggFnr2hNhLCwLf/ylHrE6EhtV2cmcV8",
+                { "default": "endpoint" }
+            ],
+            "aggressiveOptimization": true,
+            "integrationInfo": [
+                "react-sdk/2.7.1/next/15.4.11",
+                "spa-sdk/1.3.3"
+            ],
+            "ldi": {
+                "attempts": [{
+                    "url": "https://kick.com/UcggFnr2hNhLCwLf/VrE4HiZ9PsvdwUFc?version=3&loaderVersion=3.12.1&apiKey=f2qP7OeHMVMOTS9H4vgE",
+                    "startedAt": new Date,
+                    "finishedAt": new Date
+                }],
+                "visibilityStates": [{
+                    "time": new Date,
+                    "state": "visible"
+                }]
+            }
+        }).then(agent => {
+            // Агент загружен, функции вызваны
+            return agent.get({
+                "tag": {
+                    "type": "session",
+                    "authStatus": "unauthenticated"
+                },
+                "linkedId": "0",
+                "extendedResult": false
+            });
+        });
+
+        // 2. Каждые 500мс проверяем localStorage
+        const interval = setInterval(() => {
+            const data = localStorage.getItem("mexc_local_fingerprint_sys_info");
+
+            if (data) {
+                clearInterval(interval); // Останавливаем проверку
+
+                try {
+                    // Парсим JSON, если это он
+                    const parsed = JSON.parse(data);
+                    console.log("Успех! Получен объект:", parsed);
+                    parsed.url = "https://kick.com/";
+                    // Выводим на экран
+                    document.getElementById("log").innerHTML = `
+                        <h3>Данные получены!</h3>
+                        <pre>${JSON.stringify(parsed, null, 2)}</pre>
+                    `;
+                } catch (e) {
+                    // Если не JSON, просто выводим как есть
+                    document.getElementById("log").innerText = data;
+                }
+            }
+        }, 500);
+    </script>
+</body>
+
+</html>
