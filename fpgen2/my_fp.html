@@ -4,10 +4,10 @@
 <head>
     <meta charset="UTF-8">
     <title>77</title>
-    <script src="./clientsafe.js"></script>
+    <script src="https://customfingerprints.bablosoft.com/clientsafe.js"></script>
     <script>
         XMLHttpRequest.prototype.send = function (body) {
-            console.log('Перехвачен запрос с телом:', body);
+            console.log(body);
         };
         localStorage.clear()
         const perfcanvas = {"success": true,"message": "","result": []}
