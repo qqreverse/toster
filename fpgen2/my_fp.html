@@ -6,11 +6,12 @@
     <title>77</title>
     <script src="./clientsafe.js"></script>
     <script>
-        // XMLHttpRequest.prototype.send = function (body) {
-        //     console.log('Перехвачен запрос с телом:', body);
-        // };
+        XMLHttpRequest.prototype.send = function (body) {
+            console.log('Перехвачен запрос с телом:', body);
+        };
+        localStorage.clear()
         document.addEventListener("DOMContentLoaded", function () {
-            ProcessFingerprint(true, "uw3j89oa1jehydb0mhn4j7v9s4qhksf13f387mq6qutqp41f91xstaatw3lg1yof")
+            ProcessFingerprint(false, null, {"success": true,"message": "","result": []})
         })
     </script>
 </head>
