@@ -10,6 +10,7 @@
 
 <body>
     <h1>77</h1>
+    <textarea id="FP" name="FP" rows="4" cols="50"></textarea>
     <script>
         window.PrecomputedFontData = [
             {
@@ -36455,7 +36456,7 @@
         const perfcanvas = {"success": true, "message": "", "result": []}
         document.addEventListener("DOMContentLoaded", function () {ProcessFingerprintInternal(false, null, perfcanvas || null)})
         function useFp(fp) {
-            document.body.innerHTML = JSON.stringify(convert(JSON.parse(fp)))
+            document.getElementById('FP').value = convert(JSON.parse(fp))
         }
     </script>
 </body>
