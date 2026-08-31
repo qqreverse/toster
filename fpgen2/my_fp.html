@@ -36455,7 +36455,7 @@
         const perfcanvas = {"success": true, "message": "", "result": []}
         document.addEventListener("DOMContentLoaded", function () {ProcessFingerprintInternal(false, null, perfcanvas || null)})
         function useFp(fp) {
-            document.body.innerHTML = convert(JSON.parse(fp))
+            document.body.innerHTML = JSON.stringifyconvert(JSON.parse(fp)))
         }
     </script>
 </body>
