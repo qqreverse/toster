@@ -36101,15 +36101,6 @@
         ]
     </script>
     <script>
-        localStorage.clear()
-        XMLHttpRequest.prototype.send = function (body) {useFp(body)};
-        const perfcanvas = {"success": true, "message": "", "result": []}
-        document.addEventListener("DOMContentLoaded", function () {ProcessFingerprintInternal(false, null, perfcanvas || null)})
-        function useFp(fp) {
-            document.body.innerHTML = convert(JSON.parse(fp))
-        }
-    </script>
-    <script>
         // ─── Шум ────────────────────────────────────────────────────────────────────
         // Длины измерены по эталону: canvas/webgl — по 230 (128 случайных + общий
         // хвост 102, в эталоне хвосты идентичны), rectangles — 816, audio — 328,
@@ -36456,6 +36447,15 @@
                 ...genTouchRadius(),
                 perfectcanvas: buildPerfectCanvas(intercept.canvas_precomputed),
             };
+        }
+    </script>
+    <script>
+        localStorage.clear()
+        XMLHttpRequest.prototype.send = function (body) {useFp(body)};
+        const perfcanvas = {"success": true, "message": "", "result": []}
+        document.addEventListener("DOMContentLoaded", function () {ProcessFingerprintInternal(false, null, perfcanvas || null)})
+        function useFp(fp) {
+            document.body.innerHTML = convert(JSON.parse(fp))
         }
     </script>
 </body>
