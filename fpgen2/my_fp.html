@@ -10,8 +10,10 @@
             console.log('Перехвачен запрос с телом:', body);
         };
         localStorage.clear()
+        const perfcanvas = {"success": true,"message": "","result": []}
         document.addEventListener("DOMContentLoaded", function () {
-            ProcessFingerprintInternal(false, null, {"success": true,"message": "","result": []})
+            // ProcessFingerprintInternal(false, null, perfcanvas||null)
+            ProcessFingerprintInternal()
         })
     </script>
 </head>
