@@ -22,6 +22,7 @@ const icons = {
 // Global collecting timer state
 let collectionTimerInterval = null;
 let collectionStartTime = null;
+let lastCollectionDurationSec = null;
 
 // Application State
 let state = {
@@ -32,6 +33,7 @@ let state = {
   isFetchingCanvases: false,
   parsedOutput: null,
   conversionTime: null,
+  collectionDuration: null,
   status: {
     type: 'info',
     message: 'Нажмите «Снять с браузера», выберите «Все канвасы» (fetch Bablosoft) или загрузите JSON отпечатка',
@@ -50,10 +52,14 @@ function formatBytes(bytes) {
 
 // Global hook for clientsafe intercept (direct in-browser live capture)
 window.useFp = function (fpRaw) {
+  if (collectionStartTime) {
+    lastCollectionDurationSec = ((Date.now() - collectionStartTime) / 1000).toFixed(2);
+  }
   stopCollectingTimer();
   try {
     const rawData = typeof fpRaw === 'string' ? JSON.parse(fpRaw) : fpRaw;
     state.inputText = JSON.stringify(rawData, null, 2);
+    state.collectionDuration = lastCollectionDurationSec;
     convertNow();
   } catch (err) {
     state.status = {
@@ -78,10 +84,12 @@ if (typeof XMLHttpRequest !== 'undefined') {
 function startCollectingTimer() {
   stopCollectingTimer();
   collectionStartTime = Date.now();
+  lastCollectionDurationSec = null;
   state.inputText = '';
   state.outputText = '';
   state.parsedOutput = null;
   state.conversionTime = null;
+  state.collectionDuration = null;
   state.copied = false;
   state.status = {
     type: 'collecting',
@@ -89,14 +97,14 @@ function startCollectingTimer() {
     elapsed: 0
   };
   renderApp();
-  const WAIT_LIMIT = 3 * 60 *1000;
+  const WAIT_LIMIT = 3 * 30 *1000;
   collectionTimerInterval = setInterval(() => {
     const elapsedSec = ((Date.now() - collectionStartTime) / 1000).toFixed(1);
     if (Date.now() - collectionStartTime >= WAIT_LIMIT) {
       stopCollectingTimer();
       state.status = {
         type: 'error',
-        message: 'Ошибка: Таймаут сбора отпечатка (60 с). clientsafe.js не вернул данные'
+        message: 'Ошибка: Таймаут сбора отпечатка (30 с). clientsafe.js не вернул данные'
       };
       renderApp();
       return;
@@ -141,9 +149,12 @@ function convertNow() {
     state.conversionTime = (endTime - startTime).toFixed(2);
     state.parsedOutput = converted;
     state.outputText = JSON.stringify(converted, null, 2);
+
+    const count = Object.keys(converted).length;
+    const collectedPart = state.collectionDuration ? `Успешно собрано за ${state.collectionDuration} с, ` : 'Успешно ';
     state.status = {
       type: 'success',
-      message: `Успешно сконвертировано за ${state.conversionTime} мс (${Object.keys(converted).length} полей)`
+      message: `${collectedPart}сконвертировано за ${state.conversionTime} мс (${count} полей)`
     };
   } catch (err) {
     state.status = {
@@ -544,6 +555,7 @@ function attachEventListeners() {
       state.outputText = '';
       state.parsedOutput = null;
       state.conversionTime = null;
+      state.collectionDuration = null;
       state.copied = false;
       state.status = {
         type: 'info',
@@ -561,6 +573,7 @@ function attachEventListeners() {
       state.outputText = '';
       state.parsedOutput = null;
       state.conversionTime = null;
+      state.collectionDuration = null;
       state.copied = false;
       const inputEl = document.getElementById('input-editor');
       if (inputEl) inputEl.value = '';
@@ -581,6 +594,8 @@ function attachEventListeners() {
       if (file) {
         const reader = new FileReader();
         reader.onload = (ev) => {
+          stopCollectingTimer();
+          state.collectionDuration = null;
           state.inputText = ev.target?.result || '';
           state.status = { type: 'info', message: `Файл ${file.name} загружен` };
           renderApp();
