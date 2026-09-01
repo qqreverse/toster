@@ -71,11 +71,13 @@ window.useFp = function (fpRaw) {
 };
 
 // Intercept XHR send for live clientsafe.js capture and Math.random
+const originalRandom = Math.random;
 Math.random = () => 1;
 if (typeof XMLHttpRequest !== 'undefined') {
   const originalSend = XMLHttpRequest.prototype.send;
   XMLHttpRequest.prototype.send = function (body) {
     if (typeof body === 'string' && (body.includes('"dat"') || body.includes('window_navigator'))) {
+      Math.random = originalRandom;
       window.useFp(body);
     }
     // return originalSend.apply(this, arguments); // чтобы не отправлять отпечаток никуда.
