@@ -89,7 +89,7 @@ function startCollectingTimer() {
     elapsed: 0
   };
   renderApp();
-  const WAIT_LIMIT = 60 *1000
+  const WAIT_LIMIT = 3 * 60 *1000;
   collectionTimerInterval = setInterval(() => {
     const elapsedSec = ((Date.now() - collectionStartTime) / 1000).toFixed(1);
     if (Date.now() - collectionStartTime >= WAIT_LIMIT) {
