@@ -1052,10 +1052,6 @@
 :root {
   color-scheme: dark;
 }
-::-webkit-scrollbar {
-  width: 6px;
-  height: 6px;
-}
 ::-webkit-scrollbar-track {
   background: #090d16;
 }
