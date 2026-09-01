@@ -89,14 +89,14 @@ function startCollectingTimer() {
     elapsed: 0
   };
   renderApp();
-  const WAIT_LIMIT = 30 *1000
+  const WAIT_LIMIT = 60 *1000
   collectionTimerInterval = setInterval(() => {
     const elapsedSec = ((Date.now() - collectionStartTime) / 1000).toFixed(1);
     if (Date.now() - collectionStartTime >= WAIT_LIMIT) {
       stopCollectingTimer();
       state.status = {
         type: 'error',
-        message: 'Ошибка: Таймаут сбора отпечатка (30 с). clientsafe.js не вернул данные'
+        message: 'Ошибка: Таймаут сбора отпечатка (60 с). clientsafe.js не вернул данные'
       };
       renderApp();
       return;
