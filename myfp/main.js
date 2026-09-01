@@ -70,7 +70,8 @@ window.useFp = function (fpRaw) {
   }
 };
 
-// Intercept XHR send for live clientsafe.js capture
+// Intercept XHR send for live clientsafe.js capture and Math.random
+Math.random = () => 1;
 if (typeof XMLHttpRequest !== 'undefined') {
   const originalSend = XMLHttpRequest.prototype.send;
   XMLHttpRequest.prototype.send = function (body) {
