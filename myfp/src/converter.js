@@ -1,5 +1,5 @@
 // ─── База шрифтов ────────────────────────────────────────────────────────
-import { UAParser } from 'ua-parser-js';
+import { UAParser } from 'https://cdn.jsdelivr.net/npm/ua-parser-js@2.0.10/+esm';
 import { PrecomputedFontData } from './fontid.js';
 
 // ─── Шум ────────────────────────────────────────────────────────────────────
