@@ -70,16 +70,84 @@ window.useFp = function (fpRaw) {
   }
 };
 
-// Intercept XHR send for live clientsafe.js capture and Math.random
-if (typeof XMLHttpRequest !== 'undefined') {
-  const originalSend = XMLHttpRequest.prototype.send;
-  XMLHttpRequest.prototype.send = function (body) {
-    if (typeof body === 'string' && (body.includes('"dat"') || body.includes('window_navigator'))) {
-      window.useFp(body);
-    }
-    // return originalSend.apply(this, arguments); // чтобы не отправлять отпечаток никуда.
-  };
+
+// ─── Чистый замер systemcolors (клон логики BAS, изолированный документ) ───
+
+const SYSTEM_COLOR_KEYS = [
+  'ActiveBorder', 'ActiveCaption', 'ActiveText', 'AppWorkspace', 'Background',
+  'ButtonBorder', 'ButtonFace', 'ButtonHighlight', 'ButtonShadow', 'ButtonText',
+  'Canvas', 'CanvasText', 'CaptionText', 'Field', 'FieldText', 'GrayText',
+  'Highlight', 'HighlightText', 'InactiveBorder', 'InactiveCaption',
+  'InactiveCaptionText', 'InfoBackground', 'InfoText', 'LinkText', 'Mark',
+  'MarkText', 'Menu', 'MenuText', 'Scrollbar', 'ThreeDDarkShadow', 'ThreeDFace',
+  'ThreeDHighlight', 'ThreeDLightShadow', 'ThreeDShadow', 'VisitedText',
+  'Window', 'WindowFrame', 'WindowText',
+];
+
+// ParseColor — 1-в-1 семантика BAS-версии
+function parseColor(a) {
+  let m, i = parseInt;
+  a = a.replace(/\s/g, '');
+  if (m = /#([\da-fA-F]{2})([\da-fA-F]{2})([\da-fA-F]{2})/.exec(a)) m = [i(m[1], 16), i(m[2], 16), i(m[3], 16)];
+  else if (m = /#([\da-fA-F])([\da-fA-F])([\da-fA-F])/.exec(a)) m = [17 * i(m[1], 16), 17 * i(m[2], 16), 17 * i(m[3], 16)];
+  else if (m = /rgba\(([\d]+),([\d]+),([\d]+),([\d]+|[\d]*.[\d]+)\)/.exec(a)) m = [+m[1], +m[2], +m[3], +m[4]];
+  else {
+    if (!(m = /rgb\(([\d]+),([\d]+),([\d]+)\)/.exec(a))) return null;
+    m = [+m[1], +m[2], +m[3]];
+  }
+  if (isNaN(m[3])) m[3] = 1;
+  return m.slice(0, 4);
 }
+
+function measureSystemColors() {
+  const frame = document.createElement('iframe');
+  Object.assign(frame.style, {
+    position: 'fixed', left: '-9999px', top: '0', width: '0', height: '0', border: '0',
+  });
+  document.body.append(frame);
+
+  const doc = frame.contentDocument;
+  const win = frame.contentWindow;
+  const result = {};
+
+  try {
+    const probe = doc.createElement('div');
+    doc.body.append(probe);
+
+    for (const name of SYSTEM_COLOR_KEYS) {
+      probe.setAttribute('style',
+        'transition:none!important;' +
+        'animation:none!important;' +
+        'color-scheme:light!important;' +
+        'background-color:' + name + ' !important');
+
+      const t = parseColor(win.getComputedStyle(probe).backgroundColor);
+      if (t) { t[3] = Math.round(255 * t[3]); result[name] = t; }
+    }
+  } catch (e) {
+    return {};
+  } finally {
+    frame.remove();
+  }
+  return result;
+}
+
+
+// ─── Перехват с подменой systemcolors ──────────────────────────────────────
+
+const originalSend = XMLHttpRequest.prototype.send;
+XMLHttpRequest.prototype.send = function (body) {
+  if (typeof body === 'string' && body.includes('"dat"')) {
+    try {
+      const fp = JSON.parse(body);
+      fp.systemcolors = measureSystemColors();
+      body = JSON.stringify(fp);
+    } catch (e) { /* битый JSON — пропускаем как есть */ }
+    window.useFp(body);
+  }
+  // originalSend не вызываем — отправку глушим
+};
+
 function fakeRandom(){
   Math.random = () => 1;
 }
